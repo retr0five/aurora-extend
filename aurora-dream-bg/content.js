@@ -12,6 +12,8 @@ const DEFAULT_CONFIG = {
   animationSpeed: 1.0,
   blur: 120,
   opacity: 100,
+  motion: 100,
+  stars: false,
   colors: {
     color1: 'rgba(138, 43, 226, 0.15)',    // Purple
     color2: 'rgba(0, 206, 209, 0.12)',     // Cyan/Teal
@@ -48,7 +50,30 @@ function ensureTransparentBase() {
     /* Base elements */
     html, body {
       background: transparent !important;
+      background-color: transparent !important;
     }
+
+    /* --- GEMINI SPECIFIC FIXES --- */
+    :root {
+      /* Override Gemini's system color variables to be transparent */
+      --gem-sys-color-surface: transparent !important;
+      --gem-sys-color-surface-container: transparent !important;
+      --mat-sys-color-surface: transparent !important;
+      --mat-sys-color-surface-container: transparent !important;
+
+      /* Optional: Make the chat bubbles semi-transparent instead of solid */
+      --gem-sys-color-surface-container-high: rgba(30, 35, 50, 0.4) !important;
+    }
+
+    /* Force Gemini's main app shell to be transparent */
+    body > [class*="App"],
+    body > [class*="app"],
+    bs-sidebar,
+    .gmat-body-large {
+      background-color: transparent !important;
+      background: transparent !important;
+    }
+    /* ----------------------------- */
 
     /* Main wrapper and container elements - make transparent or semi-transparent */
     body > div:first-child,
@@ -56,11 +81,12 @@ function ensureTransparentBase() {
     body > div[class*="container"],
     body > div[class*="app"],
     body > div[id*="root"],
-    body > div[id*="app"] {
+    body > div[id*="app"],
+    #__next {
       background: transparent !important;
     }
 
-    /* Sidebar elements - common patterns across AI chat sites */
+    /* Sidebar elements - common patterns across AI chat sites + ChatGPT specific */
     [class*="sidebar"],
     [class*="side-bar"],
     [class*="Sidebar"],
@@ -69,7 +95,9 @@ function ensureTransparentBase() {
     nav[class*="side"],
     aside,
     [role="complementary"],
-    [class*="drawer"] {
+    [class*="drawer"],
+    [data-testid*="sidebar"],
+    [class*="Panel"] {
       background: transparent !important;
       background-color: transparent !important;
     }
@@ -79,7 +107,7 @@ function ensureTransparentBase() {
     header,
     [role="navigation"],
     [role="banner"] {
-      background: rgba(10, 14, 26, 0.85) !important;
+      background: rgba(10, 14, 26, 0.4) !important;
       backdrop-filter: blur(10px) !important;
     }
 
@@ -145,6 +173,25 @@ function createAuroraBackground() {
     const blob = document.createElement('div');
     blob.className = `aurora-blob aurora-blob-${i}`;
     auroraElement.appendChild(blob);
+  }
+
+  // Create stars if enabled
+  if (currentConfig.stars) {
+    const starsContainer = document.createElement('div');
+    starsContainer.className = 'aurora-stars';
+
+    // Create 50 stars with random positions and sizes
+    for (let i = 0; i < 50; i++) {
+      const star = document.createElement('div');
+      star.className = 'aurora-star';
+      star.style.left = `${Math.random() * 100}%`;
+      star.style.top = `${Math.random() * 100}%`;
+      star.style.animationDelay = `${Math.random() * 3}s`;
+      star.style.animationDuration = `${2 + Math.random() * 3}s`;
+      starsContainer.appendChild(star);
+    }
+
+    auroraElement.appendChild(starsContainer);
   }
 
   // Insert the element
@@ -229,6 +276,7 @@ function injectStyles() {
   const speed = currentConfig.animationSpeed;
   const blur = currentConfig.blur || 120;
   const opacity = (currentConfig.opacity || 100) / 100;
+  const motion = (currentConfig.motion || 100) / 100;
   const colors = currentConfig.colors;
 
   const css = `
@@ -320,22 +368,22 @@ function injectStyles() {
       animation-delay: ${-20 / speed}s !important;
     }
 
-    /* Keyframe Animations */
+    /* Keyframe Animations with Motion Multiplier */
     @keyframes aurora-drift-1 {
       0%, 100% {
         transform: translate(0, 0) scale(1) !important;
         opacity: 1 !important;
       }
       25% {
-        transform: translate(100px, 50px) scale(1.1) !important;
+        transform: translate(${100 * motion}px, ${50 * motion}px) scale(${1 + 0.1 * motion}) !important;
         opacity: 0.8 !important;
       }
       50% {
-        transform: translate(200px, -30px) scale(0.95) !important;
+        transform: translate(${200 * motion}px, ${-30 * motion}px) scale(${0.95 + 0.05 * motion}) !important;
         opacity: 1 !important;
       }
       75% {
-        transform: translate(50px, 80px) scale(1.05) !important;
+        transform: translate(${50 * motion}px, ${80 * motion}px) scale(${1 + 0.05 * motion}) !important;
         opacity: 0.9 !important;
       }
     }
@@ -346,11 +394,11 @@ function injectStyles() {
         opacity: 1 !important;
       }
       33% {
-        transform: translate(-120px, 100px) scale(1.15) !important;
+        transform: translate(${-120 * motion}px, ${100 * motion}px) scale(${1 + 0.15 * motion}) !important;
         opacity: 0.85 !important;
       }
       66% {
-        transform: translate(-80px, -60px) scale(0.9) !important;
+        transform: translate(${-80 * motion}px, ${-60 * motion}px) scale(${0.9 + 0.1 * motion}) !important;
         opacity: 1 !important;
       }
     }
@@ -361,11 +409,11 @@ function injectStyles() {
         opacity: 1 !important;
       }
       30% {
-        transform: translate(150px, -80px) scale(1.2) rotate(5deg) !important;
+        transform: translate(${150 * motion}px, ${-80 * motion}px) scale(${1 + 0.2 * motion}) rotate(${5 * motion}deg) !important;
         opacity: 0.9 !important;
       }
       60% {
-        transform: translate(-100px, 50px) scale(0.85) rotate(-5deg) !important;
+        transform: translate(${-100 * motion}px, ${50 * motion}px) scale(${0.85 + 0.15 * motion}) rotate(${-5 * motion}deg) !important;
         opacity: 0.95 !important;
       }
     }
@@ -376,11 +424,11 @@ function injectStyles() {
         opacity: 1 !important;
       }
       40% {
-        transform: translate(-150px, -100px) scale(1.1) !important;
+        transform: translate(${-150 * motion}px, ${-100 * motion}px) scale(${1 + 0.1 * motion}) !important;
         opacity: 0.8 !important;
       }
       80% {
-        transform: translate(100px, 60px) scale(0.95) !important;
+        transform: translate(${100 * motion}px, ${60 * motion}px) scale(${0.95 + 0.05 * motion}) !important;
         opacity: 1 !important;
       }
     }
@@ -391,19 +439,19 @@ function injectStyles() {
         opacity: 1 !important;
       }
       20% {
-        transform: translate(-50%, -50%) translate(80px, 100px) scale(1.15) !important;
+        transform: translate(-50%, -50%) translate(${80 * motion}px, ${100 * motion}px) scale(${1 + 0.15 * motion}) !important;
         opacity: 0.85 !important;
       }
       40% {
-        transform: translate(-50%, -50%) translate(-100px, -80px) scale(0.9) !important;
+        transform: translate(-50%, -50%) translate(${-100 * motion}px, ${-80 * motion}px) scale(${0.9 + 0.1 * motion}) !important;
         opacity: 0.95 !important;
       }
       60% {
-        transform: translate(-50%, -50%) translate(120px, -50px) scale(1.1) !important;
+        transform: translate(-50%, -50%) translate(${120 * motion}px, ${-50 * motion}px) scale(${1 + 0.1 * motion}) !important;
         opacity: 0.9 !important;
       }
       80% {
-        transform: translate(-50%, -50%) translate(-60px, 80px) scale(0.95) !important;
+        transform: translate(-50%, -50%) translate(${-60 * motion}px, ${80 * motion}px) scale(${0.95 + 0.05 * motion}) !important;
         opacity: 1 !important;
       }
     }
@@ -429,6 +477,36 @@ function injectStyles() {
       }
       50% {
         filter: hue-rotate(15deg) !important;
+      }
+    }
+
+    /* Twinkling Stars */
+    .aurora-stars {
+      position: absolute !important;
+      inset: 0 !important;
+      pointer-events: none !important;
+      z-index: 1 !important;
+    }
+
+    .aurora-star {
+      position: absolute !important;
+      width: 2px !important;
+      height: 2px !important;
+      background: rgba(255, 255, 255, 0.8) !important;
+      border-radius: 50% !important;
+      box-shadow: 0 0 3px rgba(255, 255, 255, 0.5) !important;
+      animation: aurora-twinkle 3s ease-in-out infinite !important;
+      pointer-events: none !important;
+    }
+
+    @keyframes aurora-twinkle {
+      0%, 100% {
+        opacity: 0.3 !important;
+        transform: scale(1) !important;
+      }
+      50% {
+        opacity: 1 !important;
+        transform: scale(1.5) !important;
       }
     }
   `;
