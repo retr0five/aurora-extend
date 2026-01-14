@@ -37,6 +37,7 @@
   },
   "action": {
     "default_icon": "icon128.png",
-    "default_title": "Aurora Dream Background"
+    "default_title": "Aurora Dream Background",
+    "default_popup": "popup.html"
   }
 }

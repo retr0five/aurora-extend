@@ -10,6 +10,8 @@
 const DEFAULT_CONFIG = {
   enabled: true,
   animationSpeed: 1.0,
+  blur: 120,
+  opacity: 100,
   colors: {
     color1: 'rgba(138, 43, 226, 0.15)',    // Purple
     color2: 'rgba(0, 206, 209, 0.12)',     // Cyan/Teal
@@ -27,10 +29,10 @@ let injectionAttempts = 0;
 const MAX_INJECTION_ATTEMPTS = 50;
 
 /**
- * Ensures html and body don't block the aurora with opaque backgrounds
+ * Ensures html, body, and major wrappers don't block the aurora with opaque backgrounds
  */
 function ensureTransparentBase() {
-  console.debug('[Aurora] Ensuring html/body transparency');
+  console.debug('[Aurora] Ensuring html/body/wrapper transparency');
 
   // Force html and body to be transparent so aurora shows through
   const htmlStyle = document.documentElement.style;
@@ -39,18 +41,83 @@ function ensureTransparentBase() {
   const bodyStyle = document.body.style;
   bodyStyle.setProperty('background', 'transparent', 'important');
 
-  // Also inject a style rule to override any Tailwind/CSS backgrounds on body
+  // Inject comprehensive style rules to override all opaque backgrounds
   const overrideStyle = document.createElement('style');
   overrideStyle.id = 'aurora-body-override';
   overrideStyle.textContent = `
+    /* Base elements */
     html, body {
       background: transparent !important;
+    }
+
+    /* Main wrapper and container elements - make transparent or semi-transparent */
+    body > div:first-child,
+    body > div[class*="wrapper"],
+    body > div[class*="container"],
+    body > div[class*="app"],
+    body > div[id*="root"],
+    body > div[id*="app"] {
+      background: transparent !important;
+    }
+
+    /* Sidebar elements - common patterns across AI chat sites */
+    [class*="sidebar"],
+    [class*="side-bar"],
+    [class*="Sidebar"],
+    [id*="sidebar"],
+    [id*="side-bar"],
+    nav[class*="side"],
+    aside,
+    [role="complementary"],
+    [class*="drawer"] {
+      background: transparent !important;
+      background-color: transparent !important;
+    }
+
+    /* Navigation and header elements */
+    nav,
+    header,
+    [role="navigation"],
+    [role="banner"] {
+      background: rgba(10, 14, 26, 0.85) !important;
+      backdrop-filter: blur(10px) !important;
+    }
+
+    /* Main content areas - keep some background for readability but make semi-transparent */
+    main,
+    [role="main"] {
+      background: rgba(10, 14, 26, 0.75) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+
+    /* Chat/conversation containers - subtle background for text contrast */
+    [class*="chat"],
+    [class*="conversation"],
+    [class*="message"],
+    [class*="thread"] {
+      background: rgba(10, 14, 26, 0.65) !important;
     }
   `;
 
   if (!document.getElementById('aurora-body-override')) {
     (document.head || document.documentElement).appendChild(overrideStyle);
   }
+
+  // Also manually set inline styles on common wrappers (in case CSS is overridden)
+  requestAnimationFrame(() => {
+    // Target body's first child (usually the React root)
+    const firstChild = document.body?.firstElementChild;
+    if (firstChild && firstChild !== auroraElement) {
+      firstChild.style.setProperty('background', 'transparent', 'important');
+    }
+
+    // Target common sidebar patterns
+    const sidebars = document.querySelectorAll('[class*="sidebar"], [class*="side-bar"], aside, [role="complementary"]');
+    sidebars.forEach(sidebar => {
+      sidebar.style.setProperty('background', 'transparent', 'important');
+      sidebar.style.setProperty('background-color', 'transparent', 'important');
+    });
+  });
 }
 
 /**
@@ -160,6 +227,8 @@ function injectStyles() {
   const baseBg = isDark ? '#0a0e1a' : '#1a1e2a';
 
   const speed = currentConfig.animationSpeed;
+  const blur = currentConfig.blur || 120;
+  const opacity = (currentConfig.opacity || 100) / 100;
   const colors = currentConfig.colors;
 
   const css = `
@@ -182,13 +251,14 @@ function injectStyles() {
       padding: 0 !important;
       border: none !important;
       outline: none !important;
+      opacity: ${opacity} !important;
     }
 
     /* Individual Aurora Blobs */
     .aurora-blob {
       position: absolute !important;
       border-radius: 50% !important;
-      filter: blur(120px) !important;
+      filter: blur(${blur}px) !important;
       opacity: 1 !important;
       will-change: transform, opacity !important;
       mix-blend-mode: screen !important;
