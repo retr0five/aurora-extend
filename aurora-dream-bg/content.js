@@ -10,16 +10,19 @@
 const DEFAULT_CONFIG = {
   enabled: true,
   animationSpeed: 1.0,
-  blur: 120,
+  blur: 140,
   opacity: 100,
   motion: 100,
   stars: false,
   colors: {
-    color1: 'rgba(138, 43, 226, 0.15)',    // Purple
-    color2: 'rgba(0, 206, 209, 0.12)',     // Cyan/Teal
-    color3: 'rgba(255, 105, 180, 0.18)',   // Magenta/Pink
-    color4: 'rgba(50, 205, 50, 0.10)',     // Soft Green
-    color5: 'rgba(147, 51, 234, 0.14)'     // Deep Purple
+    color1: 'rgba(138, 43, 226, 0.35)',    // Purple - increased intensity
+    color2: 'rgba(0, 206, 209, 0.28)',     // Cyan/Teal - increased intensity
+    color3: 'rgba(255, 105, 180, 0.38)',   // Magenta/Pink - increased intensity
+    color4: 'rgba(50, 205, 50, 0.22)',     // Soft Green - increased intensity
+    color5: 'rgba(147, 51, 234, 0.32)',    // Deep Purple - increased intensity
+    color6: 'rgba(255, 20, 147, 0.30)',    // Deep Pink/Magenta
+    color7: 'rgba(64, 224, 208, 0.25)',    // Turquoise
+    color8: 'rgba(186, 85, 211, 0.28)'     // Medium Orchid
   }
 };
 
@@ -165,18 +168,35 @@ function createAuroraBackground() {
   auroraElement.id = 'aurora-bg';
   auroraElement.className = 'aurora-dream-container';
 
-  // Add data attribute for easier debugging
-  auroraElement.setAttribute('data-aurora-version', '2.0');
-
-  // Create 5 animated blob elements
-  for (let i = 1; i <= 5; i++) {
+  // Create 8 animated blob elements for more detail
+  for (let i = 1; i <= 8; i++) {
     const blob = document.createElement('div');
     blob.className = `aurora-blob aurora-blob-${i}`;
     auroraElement.appendChild(blob);
   }
 
+  // Insert the element first
+  insertAuroraElement();
+}
+
+/**
+ * Updates stars in the existing aurora element
+ */
+function updateStars() {
+  if (!auroraElement) {
+    console.debug('[Aurora] No aurora element to update stars for');
+    return;
+  }
+
+  // Remove existing stars if any
+  const existingStars = auroraElement.querySelector('.aurora-stars');
+  if (existingStars) {
+    existingStars.remove();
+  }
+
   // Create stars if enabled
   if (currentConfig.stars) {
+    console.debug('[Aurora] Adding stars overlay');
     const starsContainer = document.createElement('div');
     starsContainer.className = 'aurora-stars';
 
@@ -193,10 +213,6 @@ function createAuroraBackground() {
 
     auroraElement.appendChild(starsContainer);
   }
-
-  // Insert the element
-  insertAuroraElement();
-}
 
 /**
  * Inserts the aurora element into the DOM using the most reliable strategy
@@ -368,6 +384,39 @@ function injectStyles() {
       animation-delay: ${-20 / speed}s !important;
     }
 
+    /* Blob 6 - Deep Pink/Magenta (Top Right) */
+    .aurora-blob-6 {
+      width: 650px !important;
+      height: 650px !important;
+      background: radial-gradient(circle, ${colors.color6 || 'rgba(255, 20, 147, 0.30)'} 0%, transparent 70%) !important;
+      top: 5% !important;
+      right: 10% !important;
+      animation: aurora-drift-6 ${38 / speed}s ease-in-out infinite !important;
+      animation-delay: ${-8 / speed}s !important;
+    }
+
+    /* Blob 7 - Turquoise (Left Center) */
+    .aurora-blob-7 {
+      width: 700px !important;
+      height: 700px !important;
+      background: radial-gradient(circle, ${colors.color7 || 'rgba(64, 224, 208, 0.25)'} 0%, transparent 70%) !important;
+      top: 50% !important;
+      left: 5% !important;
+      animation: aurora-drift-7 ${42 / speed}s ease-in-out infinite !important;
+      animation-delay: ${-12 / speed}s !important;
+    }
+
+    /* Blob 8 - Medium Orchid (Bottom Right) */
+    .aurora-blob-8 {
+      width: 750px !important;
+      height: 750px !important;
+      background: radial-gradient(circle, ${colors.color8 || 'rgba(186, 85, 211, 0.28)'} 0%, transparent 70%) !important;
+      bottom: 5% !important;
+      right: 5% !important;
+      animation: aurora-drift-8 ${36 / speed}s ease-in-out infinite !important;
+      animation-delay: ${-18 / speed}s !important;
+    }
+
     /* Keyframe Animations with Motion Multiplier */
     @keyframes aurora-drift-1 {
       0%, 100% {
@@ -456,27 +505,80 @@ function injectStyles() {
       }
     }
 
-    /* Subtle overall enhancement */
+    @keyframes aurora-drift-6 {
+      0%, 100% {
+        transform: translate(0, 0) scale(1) !important;
+        opacity: 1 !important;
+      }
+      30% {
+        transform: translate(${-80 * motion}px, ${120 * motion}px) scale(${1 + 0.12 * motion}) !important;
+        opacity: 0.88 !important;
+      }
+      70% {
+        transform: translate(${100 * motion}px, ${-50 * motion}px) scale(${0.92 + 0.08 * motion}) !important;
+        opacity: 0.95 !important;
+      }
+    }
+
+    @keyframes aurora-drift-7 {
+      0%, 100% {
+        transform: translate(0, 0) scale(1) rotate(0deg) !important;
+        opacity: 1 !important;
+      }
+      25% {
+        transform: translate(${130 * motion}px, ${-70 * motion}px) scale(${1 + 0.18 * motion}) rotate(${-8 * motion}deg) !important;
+        opacity: 0.85 !important;
+      }
+      50% {
+        transform: translate(${50 * motion}px, ${90 * motion}px) scale(${0.88 + 0.12 * motion}) rotate(${3 * motion}deg) !important;
+        opacity: 1 !important;
+      }
+      75% {
+        transform: translate(${-90 * motion}px, ${30 * motion}px) scale(${1 + 0.08 * motion}) rotate(${-5 * motion}deg) !important;
+        opacity: 0.92 !important;
+      }
+    }
+
+    @keyframes aurora-drift-8 {
+      0%, 100% {
+        transform: translate(0, 0) scale(1) !important;
+        opacity: 1 !important;
+      }
+      35% {
+        transform: translate(${-110 * motion}px, ${-90 * motion}px) scale(${1 + 0.14 * motion}) !important;
+        opacity: 0.9 !important;
+      }
+      65% {
+        transform: translate(${80 * motion}px, ${70 * motion}px) scale(${0.9 + 0.1 * motion}) !important;
+        opacity: 0.95 !important;
+      }
+    }
+
+    /* Enhanced overall overlay for more vibrancy */
     .aurora-dream-container::after {
       content: '' !important;
       position: absolute !important;
       inset: 0 !important;
-      background: linear-gradient(
-        135deg,
-        rgba(138, 43, 226, 0.03) 0%,
-        transparent 50%,
-        rgba(0, 206, 209, 0.03) 100%
+      background: radial-gradient(
+        ellipse at 30% 30%,
+        rgba(138, 43, 226, 0.12) 0%,
+        transparent 40%,
+        rgba(0, 206, 209, 0.08) 70%,
+        rgba(255, 105, 180, 0.10) 100%
       ) !important;
       animation: aurora-hue-shift ${60 / speed}s linear infinite !important;
       pointer-events: none !important;
+      mix-blend-mode: soft-light !important;
     }
 
     @keyframes aurora-hue-shift {
       0%, 100% {
         filter: hue-rotate(0deg) !important;
+        opacity: 0.8 !important;
       }
       50% {
-        filter: hue-rotate(15deg) !important;
+        filter: hue-rotate(30deg) !important;
+        opacity: 1 !important;
       }
     }
 
@@ -573,9 +675,17 @@ function updateAurora() {
   console.debug('[Aurora] Updating aurora, enabled:', currentConfig.enabled);
 
   if (currentConfig.enabled) {
-    removeStyles(); // Remove old styles
-    injectStyles(); // Inject new styles with updated config
-    createAuroraBackground();
+    // Always update styles (they contain dynamic values like speed, blur, opacity)
+    removeStyles();
+    injectStyles();
+
+    // Only create aurora if it doesn't exist
+    if (!auroraElement || !document.body.contains(auroraElement)) {
+      createAuroraBackground();
+    }
+
+    // Update stars (this handles add/remove based on config)
+    updateStars();
   } else {
     removeAuroraBackground();
     removeStyles();

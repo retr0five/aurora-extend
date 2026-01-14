@@ -7,16 +7,19 @@
 const DEFAULT_CONFIG = {
   enabled: true,
   animationSpeed: 1.0,
-  blur: 120,
+  blur: 140,
   opacity: 100,
   motion: 100,
   stars: false,
   colors: {
-    color1: 'rgba(138, 43, 226, 0.15)',
-    color2: 'rgba(0, 206, 209, 0.12)',
-    color3: 'rgba(255, 105, 180, 0.18)',
-    color4: 'rgba(50, 205, 50, 0.10)',
-    color5: 'rgba(147, 51, 234, 0.14)'
+    color1: 'rgba(138, 43, 226, 0.35)',
+    color2: 'rgba(0, 206, 209, 0.28)',
+    color3: 'rgba(255, 105, 180, 0.38)',
+    color4: 'rgba(50, 205, 50, 0.22)',
+    color5: 'rgba(147, 51, 234, 0.32)',
+    color6: 'rgba(255, 20, 147, 0.30)',
+    color7: 'rgba(64, 224, 208, 0.25)',
+    color8: 'rgba(186, 85, 211, 0.28)'
   }
 };
 
@@ -59,7 +62,7 @@ function initElements() {
   presetButtons = document.querySelectorAll('.preset-btn');
 
   // Color pickers
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 8; i++) {
     colorPickers[`color${i}`] = document.getElementById(`color${i}Picker`);
   }
 }
@@ -133,11 +136,11 @@ async function loadSettings() {
 
     // Color pickers
     if (currentConfig.colors) {
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 1; i <= 8; i++) {
         const colorKey = `color${i}`;
         const colorValue = currentConfig.colors[colorKey] || DEFAULT_CONFIG.colors[colorKey];
         const rgba = parseRgba(colorValue);
-        if (rgba) {
+        if (rgba && colorPickers[colorKey]) {
           colorPickers[colorKey].value = rgbToHex(rgba.r, rgba.g, rgba.b);
         }
       }
@@ -157,15 +160,18 @@ async function saveSettings() {
   try {
     // Build colors object from color pickers
     const colors = {};
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 8; i++) {
       const colorKey = `color${i}`;
-      const hex = colorPickers[colorKey].value;
-      const rgb = hexToRgb(hex);
-      if (rgb) {
-        // Preserve alpha from current config or use default
-        const currentRgba = currentConfig.colors[colorKey] ? parseRgba(currentConfig.colors[colorKey]) : null;
-        const alpha = currentRgba ? currentRgba.a : 0.15;
-        colors[colorKey] = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+      if (colorPickers[colorKey]) {
+        const hex = colorPickers[colorKey].value;
+        const rgb = hexToRgb(hex);
+        if (rgb) {
+          // Preserve alpha from current config or use default
+          const currentRgba = currentConfig.colors[colorKey] ? parseRgba(currentConfig.colors[colorKey]) : null;
+          const defaultAlpha = DEFAULT_CONFIG.colors[colorKey] ? parseRgba(DEFAULT_CONFIG.colors[colorKey])?.a : 0.30;
+          const alpha = currentRgba ? currentRgba.a : defaultAlpha;
+          colors[colorKey] = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+        }
       }
     }
 
@@ -307,11 +313,13 @@ function setupEventListeners() {
   });
 
   // Color pickers
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 8; i++) {
     const colorKey = `color${i}`;
-    colorPickers[colorKey].addEventListener('change', () => {
-      saveSettings();
-    });
+    if (colorPickers[colorKey]) {
+      colorPickers[colorKey].addEventListener('change', () => {
+        saveSettings();
+      });
+    }
   }
 
   // Preset buttons
