@@ -168,12 +168,7 @@ function createAuroraBackground() {
   auroraElement.id = 'aurora-bg';
   auroraElement.className = 'aurora-dream-container';
 
-  // Create 8 animated blob elements for more detail
-  for (let i = 1; i <= 8; i++) {
-    const blob = document.createElement('div');
-    blob.className = `aurora-blob aurora-blob-${i}`;
-    auroraElement.appendChild(blob);
-  }
+  // No need to create blob elements - using background image instead
 
   // Insert the element first
   insertAuroraElement();
@@ -294,10 +289,12 @@ function injectStyles() {
   const blur = currentConfig.blur || 120;
   const opacity = (currentConfig.opacity || 100) / 100;
   const motion = (currentConfig.motion || 100) / 100;
-  const colors = currentConfig.colors;
+
+  // Get the extension URL for the aurora background image
+  const auroraImageUrl = chrome.runtime.getURL('aurora-bg.jpg');
 
   const css = `
-    /* Aurora Dream Background - Base Container */
+    /* Aurora Dream Background - Base Container with Image */
     .aurora-dream-container {
       position: fixed !important;
       top: 0 !important;
@@ -310,6 +307,11 @@ function injectStyles() {
       pointer-events: none !important;
       overflow: hidden !important;
       background: ${baseBg} !important;
+      background-image: url('${auroraImageUrl}') !important;
+      background-size: cover !important;
+      background-position: center !important;
+      background-repeat: no-repeat !important;
+      filter: blur(${blur * 0.2}px) !important;
       will-change: transform !important;
       transform: translate3d(0, 0, 0) !important;
       margin: 0 !important;
@@ -317,270 +319,51 @@ function injectStyles() {
       border: none !important;
       outline: none !important;
       opacity: ${opacity} !important;
+      animation: aurora-gentle-move ${60 / speed}s ease-in-out infinite !important;
     }
 
-    /* Individual Aurora Blobs */
-    .aurora-blob {
-      position: absolute !important;
-      border-radius: 50% !important;
-      filter: blur(${blur}px) !important;
-      opacity: 1 !important;
-      will-change: transform, opacity !important;
-      mix-blend-mode: screen !important;
-      pointer-events: none !important;
-    }
-
-    /* Blob 1 - Purple */
-    .aurora-blob-1 {
-      width: 600px !important;
-      height: 600px !important;
-      background: radial-gradient(circle, ${colors.color1} 0%, transparent 70%) !important;
-      top: -10% !important;
-      left: -5% !important;
-      animation: aurora-drift-1 ${30 / speed}s ease-in-out infinite !important;
-    }
-
-    /* Blob 2 - Cyan/Teal */
-    .aurora-blob-2 {
-      width: 700px !important;
-      height: 700px !important;
-      background: radial-gradient(circle, ${colors.color2} 0%, transparent 70%) !important;
-      top: 20% !important;
-      right: -10% !important;
-      animation: aurora-drift-2 ${35 / speed}s ease-in-out infinite !important;
-      animation-delay: ${-5 / speed}s !important;
-    }
-
-    /* Blob 3 - Magenta/Pink */
-    .aurora-blob-3 {
-      width: 550px !important;
-      height: 550px !important;
-      background: radial-gradient(circle, ${colors.color3} 0%, transparent 70%) !important;
-      bottom: 10% !important;
-      left: 15% !important;
-      animation: aurora-drift-3 ${40 / speed}s ease-in-out infinite !important;
-      animation-delay: ${-10 / speed}s !important;
-    }
-
-    /* Blob 4 - Soft Green */
-    .aurora-blob-4 {
-      width: 650px !important;
-      height: 650px !important;
-      background: radial-gradient(circle, ${colors.color4} 0%, transparent 70%) !important;
-      bottom: -5% !important;
-      right: 20% !important;
-      animation: aurora-drift-4 ${28 / speed}s ease-in-out infinite !important;
-      animation-delay: ${-15 / speed}s !important;
-    }
-
-    /* Blob 5 - Deep Purple (Center) */
-    .aurora-blob-5 {
-      width: 800px !important;
-      height: 800px !important;
-      background: radial-gradient(circle, ${colors.color5} 0%, transparent 70%) !important;
-      top: 40% !important;
-      left: 50% !important;
-      transform: translate(-50%, -50%) !important;
-      animation: aurora-drift-5 ${45 / speed}s ease-in-out infinite !important;
-      animation-delay: ${-20 / speed}s !important;
-    }
-
-    /* Blob 6 - Deep Pink/Magenta (Top Right) */
-    .aurora-blob-6 {
-      width: 650px !important;
-      height: 650px !important;
-      background: radial-gradient(circle, ${colors.color6 || 'rgba(255, 20, 147, 0.30)'} 0%, transparent 70%) !important;
-      top: 5% !important;
-      right: 10% !important;
-      animation: aurora-drift-6 ${38 / speed}s ease-in-out infinite !important;
-      animation-delay: ${-8 / speed}s !important;
-    }
-
-    /* Blob 7 - Turquoise (Left Center) */
-    .aurora-blob-7 {
-      width: 700px !important;
-      height: 700px !important;
-      background: radial-gradient(circle, ${colors.color7 || 'rgba(64, 224, 208, 0.25)'} 0%, transparent 70%) !important;
-      top: 50% !important;
-      left: 5% !important;
-      animation: aurora-drift-7 ${42 / speed}s ease-in-out infinite !important;
-      animation-delay: ${-12 / speed}s !important;
-    }
-
-    /* Blob 8 - Medium Orchid (Bottom Right) */
-    .aurora-blob-8 {
-      width: 750px !important;
-      height: 750px !important;
-      background: radial-gradient(circle, ${colors.color8 || 'rgba(186, 85, 211, 0.28)'} 0%, transparent 70%) !important;
-      bottom: 5% !important;
-      right: 5% !important;
-      animation: aurora-drift-8 ${36 / speed}s ease-in-out infinite !important;
-      animation-delay: ${-18 / speed}s !important;
-    }
-
-    /* Keyframe Animations with Motion Multiplier */
-    @keyframes aurora-drift-1 {
+    /* Gentle movement animation for the aurora background */
+    @keyframes aurora-gentle-move {
       0%, 100% {
-        transform: translate(0, 0) scale(1) !important;
-        opacity: 1 !important;
+        transform: translate3d(0, 0, 0) scale(${1 + 0.05 * motion}) !important;
       }
       25% {
-        transform: translate(${100 * motion}px, ${50 * motion}px) scale(${1 + 0.1 * motion}) !important;
-        opacity: 0.8 !important;
+        transform: translate3d(${20 * motion}px, ${10 * motion}px, 0) scale(${1 + 0.08 * motion}) !important;
       }
       50% {
-        transform: translate(${200 * motion}px, ${-30 * motion}px) scale(${0.95 + 0.05 * motion}) !important;
-        opacity: 1 !important;
+        transform: translate3d(${-15 * motion}px, ${-20 * motion}px, 0) scale(${1 + 0.03 * motion}) !important;
       }
       75% {
-        transform: translate(${50 * motion}px, ${80 * motion}px) scale(${1 + 0.05 * motion}) !important;
-        opacity: 0.9 !important;
+        transform: translate3d(${10 * motion}px, ${-15 * motion}px, 0) scale(${1 + 0.06 * motion}) !important;
       }
     }
 
-    @keyframes aurora-drift-2 {
-      0%, 100% {
-        transform: translate(0, 0) scale(1) !important;
-        opacity: 1 !important;
-      }
-      33% {
-        transform: translate(${-120 * motion}px, ${100 * motion}px) scale(${1 + 0.15 * motion}) !important;
-        opacity: 0.85 !important;
-      }
-      66% {
-        transform: translate(${-80 * motion}px, ${-60 * motion}px) scale(${0.9 + 0.1 * motion}) !important;
-        opacity: 1 !important;
-      }
+    /* Grok Search Bar - Blur effect with aurora showing through */
+    [data-testid="searchbar"],
+    [data-testid="message-input"],
+    textarea[placeholder*="Ask"],
+    textarea[placeholder*="Message"],
+    input[type="text"][placeholder*="Ask"],
+    .search-input,
+    [class*="search-bar"],
+    [class*="SearchBar"],
+    [class*="message-input"],
+    [class*="MessageInput"],
+    [class*="chat-input"],
+    [class*="ChatInput"] {
+      background: rgba(10, 14, 26, 0.3) !important;
+      backdrop-filter: blur(15px) saturate(1.5) !important;
+      -webkit-backdrop-filter: blur(15px) saturate(1.5) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
     }
 
-    @keyframes aurora-drift-3 {
-      0%, 100% {
-        transform: translate(0, 0) scale(1) rotate(0deg) !important;
-        opacity: 1 !important;
-      }
-      30% {
-        transform: translate(${150 * motion}px, ${-80 * motion}px) scale(${1 + 0.2 * motion}) rotate(${5 * motion}deg) !important;
-        opacity: 0.9 !important;
-      }
-      60% {
-        transform: translate(${-100 * motion}px, ${50 * motion}px) scale(${0.85 + 0.15 * motion}) rotate(${-5 * motion}deg) !important;
-        opacity: 0.95 !important;
-      }
-    }
-
-    @keyframes aurora-drift-4 {
-      0%, 100% {
-        transform: translate(0, 0) scale(1) !important;
-        opacity: 1 !important;
-      }
-      40% {
-        transform: translate(${-150 * motion}px, ${-100 * motion}px) scale(${1 + 0.1 * motion}) !important;
-        opacity: 0.8 !important;
-      }
-      80% {
-        transform: translate(${100 * motion}px, ${60 * motion}px) scale(${0.95 + 0.05 * motion}) !important;
-        opacity: 1 !important;
-      }
-    }
-
-    @keyframes aurora-drift-5 {
-      0%, 100% {
-        transform: translate(-50%, -50%) scale(1) !important;
-        opacity: 1 !important;
-      }
-      20% {
-        transform: translate(-50%, -50%) translate(${80 * motion}px, ${100 * motion}px) scale(${1 + 0.15 * motion}) !important;
-        opacity: 0.85 !important;
-      }
-      40% {
-        transform: translate(-50%, -50%) translate(${-100 * motion}px, ${-80 * motion}px) scale(${0.9 + 0.1 * motion}) !important;
-        opacity: 0.95 !important;
-      }
-      60% {
-        transform: translate(-50%, -50%) translate(${120 * motion}px, ${-50 * motion}px) scale(${1 + 0.1 * motion}) !important;
-        opacity: 0.9 !important;
-      }
-      80% {
-        transform: translate(-50%, -50%) translate(${-60 * motion}px, ${80 * motion}px) scale(${0.95 + 0.05 * motion}) !important;
-        opacity: 1 !important;
-      }
-    }
-
-    @keyframes aurora-drift-6 {
-      0%, 100% {
-        transform: translate(0, 0) scale(1) !important;
-        opacity: 1 !important;
-      }
-      30% {
-        transform: translate(${-80 * motion}px, ${120 * motion}px) scale(${1 + 0.12 * motion}) !important;
-        opacity: 0.88 !important;
-      }
-      70% {
-        transform: translate(${100 * motion}px, ${-50 * motion}px) scale(${0.92 + 0.08 * motion}) !important;
-        opacity: 0.95 !important;
-      }
-    }
-
-    @keyframes aurora-drift-7 {
-      0%, 100% {
-        transform: translate(0, 0) scale(1) rotate(0deg) !important;
-        opacity: 1 !important;
-      }
-      25% {
-        transform: translate(${130 * motion}px, ${-70 * motion}px) scale(${1 + 0.18 * motion}) rotate(${-8 * motion}deg) !important;
-        opacity: 0.85 !important;
-      }
-      50% {
-        transform: translate(${50 * motion}px, ${90 * motion}px) scale(${0.88 + 0.12 * motion}) rotate(${3 * motion}deg) !important;
-        opacity: 1 !important;
-      }
-      75% {
-        transform: translate(${-90 * motion}px, ${30 * motion}px) scale(${1 + 0.08 * motion}) rotate(${-5 * motion}deg) !important;
-        opacity: 0.92 !important;
-      }
-    }
-
-    @keyframes aurora-drift-8 {
-      0%, 100% {
-        transform: translate(0, 0) scale(1) !important;
-        opacity: 1 !important;
-      }
-      35% {
-        transform: translate(${-110 * motion}px, ${-90 * motion}px) scale(${1 + 0.14 * motion}) !important;
-        opacity: 0.9 !important;
-      }
-      65% {
-        transform: translate(${80 * motion}px, ${70 * motion}px) scale(${0.9 + 0.1 * motion}) !important;
-        opacity: 0.95 !important;
-      }
-    }
-
-    /* Enhanced overall overlay for more vibrancy */
-    .aurora-dream-container::after {
-      content: '' !important;
-      position: absolute !important;
-      inset: 0 !important;
-      background: radial-gradient(
-        ellipse at 30% 30%,
-        rgba(138, 43, 226, 0.12) 0%,
-        transparent 40%,
-        rgba(0, 206, 209, 0.08) 70%,
-        rgba(255, 105, 180, 0.10) 100%
-      ) !important;
-      animation: aurora-hue-shift ${60 / speed}s linear infinite !important;
-      pointer-events: none !important;
-      mix-blend-mode: soft-light !important;
-    }
-
-    @keyframes aurora-hue-shift {
-      0%, 100% {
-        filter: hue-rotate(0deg) !important;
-        opacity: 0.8 !important;
-      }
-      50% {
-        filter: hue-rotate(30deg) !important;
-        opacity: 1 !important;
-      }
+    /* Input containers and wrappers */
+    [class*="input-container"],
+    [class*="InputContainer"],
+    [class*="search-container"],
+    [class*="SearchContainer"] {
+      background: transparent !important;
     }
 
     /* Twinkling Stars */

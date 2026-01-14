@@ -39,5 +39,19 @@
     "default_icon": "icon128.png",
     "default_title": "Aurora Dream Background",
     "default_popup": "popup.html"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["aurora-bg.jpg"],
+      "matches": [
+        "*://*.x.ai/*",
+        "*://*.grok.com/*",
+        "*://gemini.google.com/*",
+        "*://chatgpt.com/*",
+        "*://chat.openai.com/*",
+        "*://claude.ai/*",
+        "*://*.anthropic.com/*"
+      ]
+    }
+  ]
 }
