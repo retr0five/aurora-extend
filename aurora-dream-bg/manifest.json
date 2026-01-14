@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "Aurora Dream Background",
+  "version": "1.0.0",
+  "description": "Beautiful, subtle aurora-style gradient background for AI chat websites",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.x.ai/*",
+    "*://*.grok.com/*",
+    "*://gemini.google.com/*",
+    "*://chatgpt.com/*",
+    "*://chat.openai.com/*",
+    "*://claude.ai/*",
+    "*://*.anthropic.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.x.ai/*",
+        "*://*.grok.com/*",
+        "*://gemini.google.com/*",
+        "*://chatgpt.com/*",
+        "*://chat.openai.com/*",
+        "*://claude.ai/*",
+        "*://*.anthropic.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "options_page": "options.html",
+  "icons": {
+    "128": "icon128.png"
+  },
+  "action": {
+    "default_icon": "icon128.png",
+    "default_title": "Aurora Dream Background"
+  }
+}

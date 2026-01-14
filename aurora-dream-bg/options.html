@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aurora Dream Background - Settings</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #0a0e1a 0%, #1a1e2a 100%);
+      color: #e0e0e0;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: rgba(30, 35, 50, 0.8);
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #9ca3af;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .setting-group {
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .setting-group:last-of-type {
+      border-bottom: none;
+    }
+
+    .setting-label {
+      display: block;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #f3f4f6;
+    }
+
+    .setting-description {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+
+    /* Toggle Switch */
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 52px;
+      height: 28px;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #374151;
+      transition: 0.3s;
+      border-radius: 28px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    /* Range Slider */
+    .range-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: #374151;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(167, 139, 250, 0.4);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(167, 139, 250, 0.4);
+    }
+
+    .range-value {
+      min-width: 50px;
+      text-align: right;
+      font-weight: 600;
+      color: #a78bfa;
+      font-size: 15px;
+    }
+
+    /* Color Inputs */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+    }
+
+    .color-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .color-label {
+      font-size: 13px;
+      color: #d1d5db;
+      font-weight: 500;
+    }
+
+    .color-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1f2937;
+      border-radius: 8px;
+      padding: 6px;
+      border: 1px solid #374151;
+    }
+
+    input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #e0e0e0;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      outline: none;
+    }
+
+    /* Save Button */
+    .save-button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 20px;
+    }
+
+    .save-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(167, 139, 250, 0.4);
+    }
+
+    .save-button:active {
+      transform: translateY(0);
+    }
+
+    .save-button.saved {
+      background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    }
+
+    /* Status Message */
+    .status-message {
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .status-message.show {
+      opacity: 1;
+    }
+
+    .status-message.success {
+      background: rgba(52, 211, 153, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+    }
+
+    .status-message.error {
+      background: rgba(248, 113, 113, 0.2);
+      color: #f87171;
+      border: 1px solid rgba(248, 113, 113, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Aurora Dream Background</h1>
+    <p class="subtitle">Customize your beautiful aurora gradient effect</p>
+
+    <!-- Enable/Disable Toggle -->
+    <div class="setting-group">
+      <label class="setting-label">Enable Aurora Background</label>
+      <p class="setting-description">Toggle the aurora effect on supported AI chat websites</p>
+      <div class="toggle-container">
+        <label class="toggle">
+          <input type="checkbox" id="enableToggle" checked>
+          <span class="slider"></span>
+        </label>
+        <span id="enableStatus">Enabled</span>
+      </div>
+    </div>
+
+    <!-- Animation Speed -->
+    <div class="setting-group">
+      <label class="setting-label">Animation Speed</label>
+      <p class="setting-description">Adjust how fast the aurora blobs move (0.5× = slower, 3× = faster)</p>
+      <div class="range-container">
+        <input type="range" id="speedSlider" min="0.5" max="3" step="0.1" value="1.0">
+        <span class="range-value"><span id="speedValue">1.0</span>×</span>
+      </div>
+    </div>
+
+    <!-- Color Customization -->
+    <div class="setting-group">
+      <label class="setting-label">Aurora Colors</label>
+      <p class="setting-description">Customize the colors of each aurora blob (RGBA format)</p>
+      <div class="color-grid">
+        <div class="color-input-group">
+          <span class="color-label">Purple Blob</span>
+          <div class="color-input-wrapper">
+            <input type="color" id="color1Picker" value="#8a2be2">
+            <input type="text" id="color1" value="rgba(138, 43, 226, 0.15)">
+          </div>
+        </div>
+        <div class="color-input-group">
+          <span class="color-label">Cyan Blob</span>
+          <div class="color-input-wrapper">
+            <input type="color" id="color2Picker" value="#00ced1">
+            <input type="text" id="color2" value="rgba(0, 206, 209, 0.12)">
+          </div>
+        </div>
+        <div class="color-input-group">
+          <span class="color-label">Magenta Blob</span>
+          <div class="color-input-wrapper">
+            <input type="color" id="color3Picker" value="#ff69b4">
+            <input type="text" id="color3" value="rgba(255, 105, 180, 0.18)">
+          </div>
+        </div>
+        <div class="color-input-group">
+          <span class="color-label">Green Blob</span>
+          <div class="color-input-wrapper">
+            <input type="color" id="color4Picker" value="#32cd32">
+            <input type="text" id="color4" value="rgba(50, 205, 50, 0.10)">
+          </div>
+        </div>
+        <div class="color-input-group">
+          <span class="color-label">Deep Purple</span>
+          <div class="color-input-wrapper">
+            <input type="color" id="color5Picker" value="#9333ea">
+            <input type="text" id="color5" value="rgba(147, 51, 234, 0.14)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <button class="save-button" id="saveButton">Save Settings</button>
+
+    <!-- Status Message -->
+    <div class="status-message" id="statusMessage"></div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>
