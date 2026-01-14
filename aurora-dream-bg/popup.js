@@ -9,6 +9,8 @@ const DEFAULT_CONFIG = {
   animationSpeed: 1.0,
   blur: 120,
   opacity: 100,
+  motion: 100,
+  stars: false,
   colors: {
     color1: 'rgba(138, 43, 226, 0.15)',
     color2: 'rgba(0, 206, 209, 0.12)',
@@ -28,6 +30,10 @@ let blurSlider;
 let blurValue;
 let opacitySlider;
 let opacityValue;
+let motionSlider;
+let motionValue;
+let starsToggle;
+let colorPickers = {};
 let statusDot;
 let statusText;
 let moreSettingsLink;
@@ -44,10 +50,53 @@ function initElements() {
   blurValue = document.getElementById('blurValue');
   opacitySlider = document.getElementById('opacitySlider');
   opacityValue = document.getElementById('opacityValue');
+  motionSlider = document.getElementById('motionSlider');
+  motionValue = document.getElementById('motionValue');
+  starsToggle = document.getElementById('starsToggle');
   statusDot = document.getElementById('statusDot');
   statusText = document.getElementById('statusText');
   moreSettingsLink = document.getElementById('moreSettingsLink');
   presetButtons = document.querySelectorAll('.preset-btn');
+
+  // Color pickers
+  for (let i = 1; i <= 5; i++) {
+    colorPickers[`color${i}`] = document.getElementById(`color${i}Picker`);
+  }
+}
+
+/**
+ * Convert hex color to RGB
+ */
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+/**
+ * Extract RGB values from rgba string
+ */
+function parseRgba(rgba) {
+  const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  if (match) {
+    return {
+      r: parseInt(match[1]),
+      g: parseInt(match[2]),
+      b: parseInt(match[3]),
+      a: match[4] ? parseFloat(match[4]) : 1
+    };
+  }
+  return null;
+}
+
+/**
+ * Convert RGB to Hex
+ */
+function rgbToHex(r, g, b) {
+  return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
 /**
@@ -75,6 +124,25 @@ async function loadSettings() {
     opacitySlider.value = currentConfig.opacity || 100;
     opacityValue.textContent = opacitySlider.value;
 
+    // Motion intensity
+    motionSlider.value = currentConfig.motion || 100;
+    motionValue.textContent = motionSlider.value;
+
+    // Stars toggle
+    starsToggle.checked = currentConfig.stars || false;
+
+    // Color pickers
+    if (currentConfig.colors) {
+      for (let i = 1; i <= 5; i++) {
+        const colorKey = `color${i}`;
+        const colorValue = currentConfig.colors[colorKey] || DEFAULT_CONFIG.colors[colorKey];
+        const rgba = parseRgba(colorValue);
+        if (rgba) {
+          colorPickers[colorKey].value = rgbToHex(rgba.r, rgba.g, rgba.b);
+        }
+      }
+    }
+
     // Update status
     updateStatus();
   } catch (error) {
@@ -87,12 +155,29 @@ async function loadSettings() {
  */
 async function saveSettings() {
   try {
+    // Build colors object from color pickers
+    const colors = {};
+    for (let i = 1; i <= 5; i++) {
+      const colorKey = `color${i}`;
+      const hex = colorPickers[colorKey].value;
+      const rgb = hexToRgb(hex);
+      if (rgb) {
+        // Preserve alpha from current config or use default
+        const currentRgba = currentConfig.colors[colorKey] ? parseRgba(currentConfig.colors[colorKey]) : null;
+        const alpha = currentRgba ? currentRgba.a : 0.15;
+        colors[colorKey] = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+      }
+    }
+
     const config = {
       ...currentConfig,
       enabled: enableToggle.checked,
       animationSpeed: parseFloat(speedSlider.value),
       blur: parseInt(blurSlider.value),
-      opacity: parseInt(opacitySlider.value)
+      opacity: parseInt(opacitySlider.value),
+      motion: parseInt(motionSlider.value),
+      stars: starsToggle.checked,
+      colors: colors
     };
 
     await chrome.storage.sync.set({ auroraConfig: config });
@@ -127,21 +212,25 @@ async function applyPreset(preset) {
       speedSlider.value = 0.5;
       blurSlider.value = 160;
       opacitySlider.value = 50;
+      motionSlider.value = 50;
       break;
     case 'normal':
       speedSlider.value = 1.0;
       blurSlider.value = 120;
       opacitySlider.value = 100;
+      motionSlider.value = 100;
       break;
     case 'vibrant':
       speedSlider.value = 1.5;
       blurSlider.value = 100;
       opacitySlider.value = 100;
+      motionSlider.value = 150;
       break;
     case 'intense':
       speedSlider.value = 2.5;
       blurSlider.value = 80;
       opacitySlider.value = 100;
+      motionSlider.value = 200;
       break;
   }
 
@@ -149,6 +238,7 @@ async function applyPreset(preset) {
   speedValue.textContent = speedSlider.value;
   blurValue.textContent = blurSlider.value;
   opacityValue.textContent = opacitySlider.value;
+  motionValue.textContent = motionSlider.value;
 
   // Enable if applying a preset
   enableToggle.checked = true;
@@ -201,6 +291,28 @@ function setupEventListeners() {
   opacitySlider.addEventListener('change', () => {
     saveSettings();
   });
+
+  // Motion slider
+  motionSlider.addEventListener('input', (e) => {
+    motionValue.textContent = e.target.value;
+  });
+
+  motionSlider.addEventListener('change', () => {
+    saveSettings();
+  });
+
+  // Stars toggle
+  starsToggle.addEventListener('change', () => {
+    saveSettings();
+  });
+
+  // Color pickers
+  for (let i = 1; i <= 5; i++) {
+    const colorKey = `color${i}`;
+    colorPickers[colorKey].addEventListener('change', () => {
+      saveSettings();
+    });
+  }
 
   // Preset buttons
   presetButtons.forEach(btn => {

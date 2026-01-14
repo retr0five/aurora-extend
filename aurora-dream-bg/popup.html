@@ -250,6 +250,55 @@
       margin-top: 6px;
       line-height: 1.4;
     }
+
+    /* Color Picker Grid */
+    .color-picker-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      padding: 12px 16px;
+      background: rgba(30, 35, 50, 0.6);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .color-picker-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-picker-label {
+      font-size: 9px;
+      color: #9ca3af;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .color-picker-item input[type="color"] {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(167, 139, 250, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .color-picker-item input[type="color"]:hover {
+      border-color: rgba(167, 139, 250, 0.6);
+      transform: scale(1.05);
+    }
+
+    .color-picker-item input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    .color-picker-item input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
@@ -305,6 +354,60 @@
         <input type="range" id="opacitySlider" min="30" max="100" step="5" value="100">
       </div>
       <p class="description">Fade the entire aurora effect</p>
+    </div>
+
+    <!-- Motion Intensity -->
+    <div class="control-group">
+      <div class="control-label">
+        <span>Motion Intensity</span>
+        <span class="control-value"><span id="motionValue">100</span>%</span>
+      </div>
+      <div class="slider-container">
+        <input type="range" id="motionSlider" min="0" max="200" step="10" value="100">
+      </div>
+      <p class="description">More movement and larger transforms</p>
+    </div>
+
+    <!-- Stars Toggle -->
+    <div class="control-group">
+      <div class="toggle-container">
+        <span class="toggle-label">Twinkling Stars</span>
+        <label class="toggle">
+          <input type="checkbox" id="starsToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <p class="description">Add animated stars to the aurora</p>
+    </div>
+
+    <!-- Color Pickers -->
+    <div class="control-group">
+      <div class="control-label">
+        <span>Aurora Colors</span>
+      </div>
+      <div class="color-picker-grid">
+        <div class="color-picker-item">
+          <label for="color1Picker" class="color-picker-label">Purple</label>
+          <input type="color" id="color1Picker" value="#8a2be2">
+        </div>
+        <div class="color-picker-item">
+          <label for="color2Picker" class="color-picker-label">Cyan</label>
+          <input type="color" id="color2Picker" value="#00ced1">
+        </div>
+        <div class="color-picker-item">
+          <label for="color3Picker" class="color-picker-label">Magenta</label>
+          <input type="color" id="color3Picker" value="#ff69b4">
+        </div>
+        <div class="color-picker-item">
+          <label for="color4Picker" class="color-picker-label">Green</label>
+          <input type="color" id="color4Picker" value="#32cd32">
+        </div>
+        <div class="color-picker-item">
+          <label for="color5Picker" class="color-picker-label">Deep Purple</label>
+          <input type="color" id="color5Picker" value="#9333ea">
+        </div>
+      </div>
+      <p class="description">Click to customize each blob color</p>
     </div>
 
     <!-- Quick Presets -->
