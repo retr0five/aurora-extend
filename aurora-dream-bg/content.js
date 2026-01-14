@@ -213,6 +213,7 @@ function updateStars() {
 
     auroraElement.appendChild(starsContainer);
   }
+}
 
 /**
  * Inserts the aurora element into the DOM using the most reliable strategy
